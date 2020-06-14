@@ -48,10 +48,10 @@ export class Server {
       authorizationChecker: RoleAuthorization.checkAuthorization,
       currentUserChecker: CurrentUserDecorator.checkCurrentUser,
       cors: {
-        " origin " : " * " ,
-        " method " : " GET, HEAD, PUT, PATCH, POST, DELETE " ,
-        " preflightContinue " : false ,
-        " optionsSuccessStatus " : 204 
+        'origin': 'http://localhost:4200',
+        'method': 'GET, HEAD, PUT, PATCH, POST, DELETE',
+        'preflightContinue': false,
+        'optionsSuccessStatus': 204,
       },
     });
 
