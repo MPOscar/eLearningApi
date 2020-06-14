@@ -48,9 +48,13 @@ export class Server {
       controllers: [__dirname + '/controllers/*.js'], // register all controller's routes
       authorizationChecker: RoleAuthorization.checkAuthorization,
       currentUserChecker: CurrentUserDecorator.checkCurrentUser,
+      cors: {
+        'origin': 'http://localhost:4200',
+        'method': 'GET, HEAD, PUT, PATCH, POST, DELETE',
+        'preflightContinue': false,
+        'optionsSuccessStatus': 204,
+      },
     });
-
-    this.app.options('*', cors());
 
     if (config.sentryDsn) {
       // The request handler must be the first middleware on the app
