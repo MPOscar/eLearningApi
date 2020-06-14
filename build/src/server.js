@@ -15,6 +15,7 @@ const RoleAuthorization_1 = require("./security/RoleAuthorization");
 const CurrentUserDecorator_1 = require("./security/CurrentUserDecorator");
 require("./utilities/FilterErrorHandler");
 const ChatServer_1 = require("./ChatServer");
+const cors = require("cors");
 if (main_1.default.sentryDsn) {
     Raven.config(main_1.default.sentryDsn, {
         environment: 'api',
@@ -40,6 +41,7 @@ class Server {
             authorizationChecker: RoleAuthorization_1.RoleAuthorization.checkAuthorization,
             currentUserChecker: CurrentUserDecorator_1.CurrentUserDecorator.checkCurrentUser,
         });
+        this.app.options('*', cors());
         if (main_1.default.sentryDsn) {
             // The request handler must be the first middleware on the app
             this.app.use(Raven.requestHandler());
