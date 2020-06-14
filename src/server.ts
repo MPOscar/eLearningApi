@@ -14,6 +14,7 @@ import {RoleAuthorization} from './security/RoleAuthorization';
 import {CurrentUserDecorator} from './security/CurrentUserDecorator';
 import './utilities/FilterErrorHandler';
 import ChatServer from './ChatServer';
+import * as cors from 'cors';
 
 if (config.sentryDsn) {
   Raven.config(config.sentryDsn, {
@@ -26,6 +27,7 @@ if (config.sentryDsn) {
  * Root class of your node server.
  * Can be used for basic configurations, for instance starting up the server or registering middleware.
  */
+
 export class Server {
 
   public app: Express;
@@ -47,6 +49,8 @@ export class Server {
       authorizationChecker: RoleAuthorization.checkAuthorization,
       currentUserChecker: CurrentUserDecorator.checkCurrentUser,
     });
+
+    this.app.options('*', cors());
 
     if (config.sentryDsn) {
       // The request handler must be the first middleware on the app
