@@ -1,25 +1,25 @@
-import 'reflect-metadata';
-import {createExpressServer} from 'routing-controllers';
-import * as express from 'express';
-import * as mongoose from 'mongoose';
-import * as morgan from 'morgan';
-import * as passport from 'passport';
-import {Express} from 'express';
-import * as Raven from 'raven';
-import config from './config/main';
-import passportLoginStrategy from './security/passportLoginStrategy';
-import passportJwtStrategy from './security/passportJwtStrategy';
-import passportJwtMiddleware from './security/passportJwtMiddleware';
-import {RoleAuthorization} from './security/RoleAuthorization';
-import {CurrentUserDecorator} from './security/CurrentUserDecorator';
-import './utilities/FilterErrorHandler';
-import ChatServer from './ChatServer';
-import * as cors from 'cors';
+import "reflect-metadata";
+import { createExpressServer } from "routing-controllers";
+import * as express from "express";
+import * as mongoose from "mongoose";
+import * as morgan from "morgan";
+import * as passport from "passport";
+import { Express } from "express";
+import * as Raven from "raven";
+import config from "./config/main";
+import passportLoginStrategy from "./security/passportLoginStrategy";
+import passportJwtStrategy from "./security/passportJwtStrategy";
+import passportJwtMiddleware from "./security/passportJwtMiddleware";
+import { RoleAuthorization } from "./security/RoleAuthorization";
+import { CurrentUserDecorator } from "./security/CurrentUserDecorator";
+import "./utilities/FilterErrorHandler";
+import ChatServer from "./ChatServer";
+import * as cors from "cors";
 
 if (config.sentryDsn) {
   Raven.config(config.sentryDsn, {
-    environment: 'api',
-    release: '$TRAVIS_COMMIT',
+    environment: "api",
+    release: "$TRAVIS_COMMIT",
   }).install();
 }
 
@@ -29,7 +29,6 @@ if (config.sentryDsn) {
  */
 
 export class Server {
-
   public app: Express;
 
   static setupPassport() {
@@ -44,13 +43,17 @@ export class Server {
     // mongoose.set('debug', true);
 
     this.app = createExpressServer({
-      routePrefix: '/api',
-      controllers: [__dirname + '/controllers/*.js'], // register all controller's routes
+      routePrefix: "/api",
+      controllers: [__dirname + "/controllers/*.js"], // register all controller's routes
       authorizationChecker: RoleAuthorization.checkAuthorization,
       currentUserChecker: CurrentUserDecorator.checkCurrentUser,
+      cors: {
+        " origin " : " * " ,
+        " method " : " GET, HEAD, PUT, PATCH, POST, DELETE " ,
+        " preflightContinue " : false ,
+        " optionsSuccessStatus " : 204 
+      },
     });
-
-    this.app.options('*', cors());
 
     if (config.sentryDsn) {
       // The request handler must be the first middleware on the app
@@ -64,16 +67,22 @@ export class Server {
 
     // Requires authentication via the passportJwtMiddleware to accesss the static config.uploadFolder (e.g. for images).
     // That means this is not meant for truly public files accessible without login!
-    this.app.use('/api/uploads', passportJwtMiddleware, express.static(config.uploadFolder));
+    this.app.use(
+      "/api/uploads",
+      passportJwtMiddleware,
+      express.static(config.uploadFolder)
+    );
   }
 
   start() {
     mongoose.connect(config.database, config.databaseOptions);
 
-    this.app.use(morgan('combined'));
+    this.app.use(morgan("combined"));
 
     const server = this.app.listen(config.port, () => {
-      process.stdout.write('Server successfully started at port ' + config.port);
+      process.stdout.write(
+        "Server successfully started at port " + config.port
+      );
     });
 
     const chatServer = new ChatServer(server);
@@ -84,6 +93,6 @@ export class Server {
 /**
  * For testing mocha will start express itself
  */
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== "test") {
   new Server().start();
 }
